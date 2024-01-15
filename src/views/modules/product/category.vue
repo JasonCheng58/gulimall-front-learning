@@ -48,15 +48,27 @@ export default {
       console.log('append', data)
     },
     remove (node, data) {
-      var ids = [data.catId]
-      this.$http({
-        url: this.$http.adornUrl('/product/category/delete'),
-        method: 'post',
-        data: this.$http.adornData(ids, false)
-      }).then(({data}) => {
-        console.log('刪除成功')
-        // 刪除成功刷新介面(重拉菜單)
-        this.getMenus()
+      const ids = [data.catId]
+      // 刪除前加入提示
+      const name = data.name
+      this.$confirm('是否刪除[' + name + ']菜單?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 刪除API 請求
+        this.$http({
+          url: this.$http.adornUrl('/product/category/delete'),
+          method: 'post',
+          data: this.$http.adornData(ids, false)
+        }).then(({data}) => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+          // 刪除成功刷新介面(重拉菜單)
+          this.getMenus()
+        })
       })
     },
     getMenus () {

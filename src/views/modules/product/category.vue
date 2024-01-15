@@ -48,7 +48,16 @@ export default {
       console.log('append', data)
     },
     remove (node, data) {
-      console.log('remove', node, data)
+      var ids = [data.catId]
+      this.$http({
+        url: this.$http.adornUrl('/product/category/delete'),
+        method: 'post',
+        data: this.$http.adornData(ids, false)
+      }).then(({data}) => {
+        console.log('刪除成功')
+        // 刪除成功刷新介面(重拉菜單)
+        this.getMenus()
+      })
     },
     getMenus () {
       this.dataListLoading = true

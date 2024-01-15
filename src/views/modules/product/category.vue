@@ -1,6 +1,7 @@
 <template>
   <el-tree :data="menus" :props="defaultProps"
            :expand-on-click-node="false" show-checkbox node-key="catId"
+           :default-expanded-keys="expandedKey"
   >
 
      <span class="custom-tree-node" slot-scope="{ node, data }">
@@ -33,6 +34,7 @@ export default {
   data () {
     return {
       menus: [],
+      expandedKey: [],
       defaultProps: {
         children: 'children',
         label: 'name'
@@ -68,6 +70,8 @@ export default {
           })
           // 刪除成功刷新介面(重拉菜單)
           this.getMenus()
+          // 設置需要默認展開的菜單(被刪除的菜單)
+          this.expandedKey = [node.parent.data.catId]
         })
       })
     },

@@ -1,8 +1,9 @@
 <template>
-  <el-tree :data="menus" :props="defaultProps"
-           :expand-on-click-node="false" show-checkbox node-key="catId"
-           :default-expanded-keys="expandedKey"
-  >
+  <div>
+    <el-tree :data="menus" :props="defaultProps"
+             :expand-on-click-node="false" show-checkbox node-key="catId"
+             :default-expanded-keys="expandedKey"
+    >
 
      <span class="custom-tree-node" slot-scope="{ node, data }">
         <span>{{ node.label }}</span>
@@ -24,7 +25,23 @@
         </span>
       </span>
 
-  </el-tree>
+    </el-tree>
+
+    <el-dialog
+      title="提示"
+      :visible.sync="dialogVisible"
+      width="30%">
+      <el-form :model="category">
+        <el-form-item label="分類名稱">
+          <el-input v-model="category.name" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+    <el-button @click="dialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="addCategory">确 定</el-button>
+  </span>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
@@ -33,6 +50,8 @@
 export default {
   data () {
     return {
+      category: {name: '', parentCid: 0, catLevel: 0, showStatus: 1, sort: 0},
+      dialogVisible: false,
       menus: [],
       expandedKey: [],
       defaultProps: {
@@ -47,8 +66,35 @@ export default {
       console.log(data)
     },
     append (data) {
-      console.log('append', data)
+      // 打開對話框
+      this.dialogVisible = true
+      // 取得參數
+      this.category.parentCid = data.catId
+      this.category.catLevel = data.catLevel * 1 + 1
     },
+
+    // 添加三級分類
+    addCategory () {
+      // 新增API 請求
+      this.$http({
+        url: this.$http.adornUrl('/product/category/save'),
+        method: 'post',
+        data: this.$http.adornData(this.category, false)
+      }).then(({data}) => {
+        this.$message({
+          type: 'success',
+          message: '保存成功!'
+        })
+        // 關閉對話框
+        this.dialogVisible = false
+        // 新增成功刷新介面(重拉菜單)
+        this.getMenus()
+        // 設置需要默認展開的菜單(被新增三級菜單的父菜單)
+        this.expandedKey = [this.category.parentCid]
+      })
+    },
+
+    // 刪除三級分類
     remove (node, data) {
       const ids = [data.catId]
       // 刪除前加入提示

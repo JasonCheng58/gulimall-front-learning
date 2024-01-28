@@ -16,6 +16,12 @@
             Append
           </el-button>
           <el-button
+            type="text"
+            size="mini"
+            @click="() => edit(data)">
+            Edit
+          </el-button>
+          <el-button
             v-if="node.childNodes.length===0"
             type="text"
             size="mini"
@@ -28,17 +34,23 @@
     </el-tree>
 
     <el-dialog
-      title="提示"
+      :title="title"
       :visible.sync="dialogVisible"
       width="30%">
       <el-form :model="category">
         <el-form-item label="分類名稱">
           <el-input v-model="category.name" autocomplete="off"></el-input>
         </el-form-item>
+        <el-form-item label="圖標">
+          <el-input v-model="category.icon" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="計量單位">
+          <el-input v-model="category.productUnit" autocomplete="off"></el-input>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
     <el-button @click="dialogVisible = false">取 消</el-button>
-    <el-button type="primary" @click="addCategory">确 定</el-button>
+    <el-button type="primary" @click="submitData">确 定</el-button>
   </span>
     </el-dialog>
   </div>
@@ -50,7 +62,11 @@
 export default {
   data () {
     return {
-      category: {name: '', parentCid: 0, catLevel: 0, showStatus: 1, sort: 0},
+      // dialog標題
+      title: '',
+      // 控制按下確定時是要呼叫append 或edit方法
+      dialogType: '',
+      category: {name: '', parentCid: 0, catLevel: 0, showStatus: 1, sort: 0, catId: null, productUnit: '', icon: ''},
       dialogVisible: false,
       menus: [],
       expandedKey: [],
@@ -66,11 +82,48 @@ export default {
       console.log(data)
     },
     append (data) {
+      // 標題
+      this.title = '添加分類'
+      // 對話框類型
+      this.dialogType = 'add'
       // 打開對話框
       this.dialogVisible = true
       // 取得參數
       this.category.parentCid = data.catId
       this.category.catLevel = data.catLevel * 1 + 1
+    },
+    edit (data) {
+      // 標題
+      this.title = '修改分類'
+      // 對話框類型
+      this.dialogType = 'edit'
+      // 打開對話框
+      this.dialogVisible = true
+      // 取得catId 查數據用
+      const catId = data.catId
+      // 發送請求獲取最新數據
+      this.$http({
+        url: this.$http.adornUrl('/product/category/info/' + catId),
+        method: 'get'
+      }).then(({data}) => {
+        console.log('要回顯得數據', data.data)
+        // 取得參數
+        this.category.name = data.data.name
+        this.category.catId = data.data.catId
+        this.category.icon = data.data.icon
+        this.category.productUnit = data.data.productUnit
+      })
+    },
+
+    submitData () {
+      // 新增
+      if (this.dialogType === 'add') {
+        this.addCategory()
+      }
+      // 修改
+      if (this.dialogType === 'edit') {
+        this.editCategory()
+      }
     },
 
     // 添加三級分類
@@ -84,6 +137,35 @@ export default {
         this.$message({
           type: 'success',
           message: '保存成功!'
+        })
+        // 關閉對話框
+        this.dialogVisible = false
+        // 新增成功刷新介面(重拉菜單)
+        this.getMenus()
+        // 設置需要默認展開的菜單(被新增三級菜單的父菜單)
+        this.expandedKey = [this.category.parentCid]
+      })
+    },
+
+    // 修改三級分類
+    editCategory () {
+      const {
+        catId,
+        name,
+        icon,
+        productUnit
+      } = this.category
+
+      // 修改API 請求
+      this.$http({
+        url: this.$http.adornUrl('/product/category/update'),
+        method: 'post',
+        data: this.$http.adornData({catId, name, icon, productUnit},
+          false)
+      }).then(({data}) => {
+        this.$message({
+          type: 'success',
+          message: '菜單修改成功!'
         })
         // 關閉對話框
         this.dialogVisible = false

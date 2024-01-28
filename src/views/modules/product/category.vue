@@ -225,11 +225,13 @@ export default {
       })
     },
     allowDrop (draggingNode, dropNode, type) {
-      // 1.被拖動的當前節點 以及 所在父節點的總層數不能大於3
-      // 被拖動的當前節點總層數
-      this.countNodeLevel(draggingNode.data)
-      // 當前正在拖動的節點+父節點所在深度 大於3即可
-      let deep = this.maxLevel - draggingNode.data.catLevel + 1
+      // 1、被拖动的当前节点以及所在的父节点总层数不能大于3
+      // 1）、被拖动的当前节点总层数
+      console.log('allowDrop:', draggingNode, dropNode, type)
+      this.countNodeLevel(draggingNode)
+      // 当前正在拖动的节点+父节点所在的深度不大于3即可
+      let deep = Math.abs(this.maxLevel - draggingNode.level) + 1
+
       if (type === 'inner') {
         return deep + dropNode.level <= 3
       } else {

@@ -2,7 +2,7 @@
   <div>
     <el-tree :data="menus" :props="defaultProps"
              :expand-on-click-node="false" show-checkbox node-key="catId"
-             :default-expanded-keys="expandedKey"
+             :default-expanded-keys="expandedKey" draggable :allow-drop="allowDrop"
     >
 
      <span class="custom-tree-node" slot-scope="{ node, data }">
@@ -60,9 +60,11 @@
 <script>
 // 这里可以导入其他文件（比如：组件，工具 js，第三方插件 js，json 文件，图片文件等等）
 // 例如：import 《组件名称》 from '《组件路径》 ';
+
 export default {
   data () {
     return {
+      maxLevel: 0,
       // dialog標題
       title: '',
       // 控制按下確定時是要呼叫append 或edit方法
@@ -79,9 +81,6 @@ export default {
   },
   // 方法集合
   methods: {
-    handleNodeClick (data) {
-      console.log(data)
-    },
     append (data) {
       // 標題
       this.title = '添加分類'
@@ -221,6 +220,29 @@ export default {
         console.log('成功獲取到菜單數據..', data.data)
         this.menus = data.data
       })
+    },
+    allowDrop (draggingNode, dropNode, type) {
+      // 1.被拖動的當前節點 以及 所在父節點的總層數不能大於3
+      // 被拖動的當前節點總層數
+      this.countNodeLevel(draggingNode.data)
+      // 當前正在拖動的節點+父節點所在深度 大於3即可
+      let deep = this.maxLevel - draggingNode.data.catLevel + 1
+      if (type === 'inner') {
+        return (deep + dropNode.level) <= 3
+      } else {
+        return (deep + dropNode.parent.level) <= 3
+      }
+    },
+    countNodeLevel (node) {
+      // 找到所有子節點，求出最大深度
+      if (node.children != null && node.children.length > 0) {
+        for (let i = 0; i < node.children.length; i++) {
+          if (node.children[i].catLevel > this.maxLevel) {
+            this.maxLevel = node.children[i].catLevel
+          }
+          this.countNodeLevel(node.children[i])
+        }
+      }
     }
   },
   // 生命周期 - 创建完成（可以访问当前this 实例）

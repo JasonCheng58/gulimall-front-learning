@@ -231,9 +231,9 @@ export default {
       // 當前正在拖動的節點+父節點所在深度 大於3即可
       let deep = this.maxLevel - draggingNode.data.catLevel + 1
       if (type === 'inner') {
-        return (deep + dropNode.level) <= 3
+        return deep + dropNode.level <= 3
       } else {
-        return (deep + dropNode.parent.level) <= 3
+        return deep + dropNode.parent.level <= 3
       }
     },
     handleDrop (draggingNode, dropNode, dropType, ev) {
@@ -268,6 +268,24 @@ export default {
       }
       // 3.當前托拽節點的最新層級
       console.log(this.updateNodes)
+      // 修改API 請求
+      this.$http({
+        url: this.$http.adornUrl('/product/category/update/sort'),
+        method: 'post',
+        data: this.$http.adornData(this.updateNodes, false)
+      }).then(({data}) => {
+        this.$message({
+          type: 'success',
+          message: '菜單順序修改成功!'
+        })
+        // 刷新介面(重拉菜單)
+        this.getMenus()
+        // 設置需要默認展開的菜單(被新增三級菜單的父菜單)
+        this.expandedKey = [pCid]
+        // 清空
+        this.updateNodes = []
+        this.maxLevel = 0
+      })
     },
     // 更新子節點
     updateChildNodeLevel (node) {

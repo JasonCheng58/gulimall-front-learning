@@ -36,7 +36,8 @@
     <el-dialog
       :title="title"
       :visible.sync="dialogVisible"
-      width="30%">
+      width="30%"
+      :close-on-click-modal=false>
       <el-form :model="category">
         <el-form-item label="分類名稱">
           <el-input v-model="category.name" autocomplete="off"></el-input>
@@ -91,6 +92,14 @@ export default {
       // 取得參數
       this.category.parentCid = data.catId
       this.category.catLevel = data.catLevel * 1 + 1
+
+      // 開啟新增dialog 要清空數值
+      this.category.catId = null
+      this.category.name = ''
+      this.category.icon = ''
+      this.category.productUnit = ''
+      this.category.sort = 0
+      this.category.showStatus = 1
     },
     edit (data) {
       // 標題

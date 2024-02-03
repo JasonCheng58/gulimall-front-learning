@@ -13,13 +13,15 @@
     <el-form-item label="介绍" prop="descript">
       <el-input v-model="dataForm.descript" placeholder="介绍"></el-input>
     </el-form-item>
-    <el-form-item label="显示状态" prop="showStatus">
-      <el-switch
-        v-model="dataForm.showStatus"
-        active-color="#13ce66"
-        inactive-color="#ff4949">
-      </el-switch>
-    </el-form-item>
+      <el-form-item label="显示状态" prop="showStatus">
+        <el-switch
+          v-model="dataForm.showStatus"
+          active-color="#13ce66"
+          inactive-color="#ff4949"
+          :active-value="1"
+          :inactive-value="0"
+        ></el-switch>
+      </el-form-item>
     <el-form-item label="检索首字母" prop="firstLetter">
       <el-input v-model="dataForm.firstLetter" placeholder="检索首字母"></el-input>
     </el-form-item>
@@ -44,7 +46,7 @@
           name: '',
           logo: '',
           descript: '',
-          showStatus: '',
+          showStatus: '1',
           firstLetter: '',
           sort: ''
         },

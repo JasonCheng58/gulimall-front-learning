@@ -48,12 +48,7 @@
         align="center"
         label="介绍">
       </el-table-column>
-      <el-table-column
-        prop="showStatus"
-        header-align="center"
-        align="center"
-        label="显示状态"
-      >
+      <el-table-column prop="showStatus" header-align="center" align="center" label="显示状态">
         <template slot-scope="scope">
           <el-switch
             v-model="scope.row.showStatus"
@@ -61,8 +56,8 @@
             inactive-color="#ff4949"
             :active-value="1"
             :inactive-value="0"
-            @change="updateBrandStatus(scope.row)">
-          </el-switch>
+            @change="updateBrandStatus(scope.row)"
+          ></el-switch>
         </template>
       </el-table-column>
       <el-table-column
